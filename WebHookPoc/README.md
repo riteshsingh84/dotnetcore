@@ -20,10 +20,6 @@ This project is an ASP.NET Core Web API Proof of Concept for secure webhook hand
 ## Security
 - Implement IP whitelisting and HMAC signature validation for webhook endpoints.
 
-## Next Steps
-- Customize the webhook endpoint logic in `Controllers/WebhookController.cs` (to be created).
-- Add your signature validation logic.
-
 ## Test Using Postman
 * **End point URL** :  http://localhost:5066/api/webhook
 * **Method** :  POST
@@ -39,3 +35,10 @@ This project is an ASP.NET Core Web API Proof of Concept for secure webhook hand
 
 ## Activity Diagram
 ![alt text](ActivityDigram.png)
+
+
+## Next Steps
+- Customize the webhook endpoint logic in `Services/WebhookService.cs` .
+- Add your IP whitelisting logic
+- Add your signature validation logic.
+
