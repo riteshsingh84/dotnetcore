@@ -1,5 +1,5 @@
-WebHookPoc/bin/
-WebHookPoc/obj/
+WebHookPoc/WebHookPoc/bin/
+WebHookPoc/WebHookPoc/obj/
 WebHookPoc/WebHookPOC.Tests/bin/
 WebHookPoc/WebHookPOC.Tests/obj/
 # Git recommended ignores
