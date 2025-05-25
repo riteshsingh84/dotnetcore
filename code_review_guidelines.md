@@ -1,6 +1,6 @@
 # GitHub Copilot Code Review Guidelines
 
-1. ## General C# Guidelines
+## 1. General C# Guidelines
 
 1.1. **Explicit Typing Over `var`**
    * Avoid using `var` unless the type is obvious from the right-hand side. Prefer explicit types for readability.
@@ -22,7 +22,7 @@
 1.4. **Use Expression-Bodied Members Where Appropriate**
 * Use expression-bodied members for simple properties and methods to reduce boilerplate.
 
-2. ## Good Programming Practices**
+## 2. Good Programming Practices**
 * Add Proper Comments in code which describe the business logic.
 * Declare all member variables at the top of a class.
 * Avoid writing very long methods. A method should typically have 1~25 lines of code. If a method has more than 25 lines of code, you must consider re factoring into separate methods. 
@@ -37,7 +37,7 @@
 * "new Guid()" should not be used
 * Do not make the member variables public or protected. Keep them private and expose public/protected Properties.
 
-3. ## Security Guidelines
+## 3. Security Guidelines
 
 3.1. **Avoid Hardcoded Secrets**
    * Never hardcode API keys, passwords, or connection strings. Use environment variables or secure vaults.
@@ -45,7 +45,7 @@
 3.2. **Validate All User Input**
    * Ensure all user input is validated and sanitized to prevent injection attacks.
 
-4. ## Dependency & Configuration
+## 4. Dependency & Configuration
 
 4.1. **Use Dependency Injection**
    * Prefer constructor injection for dependencies to improve testability and reduce coupling.
@@ -53,7 +53,7 @@
 4.2. **Avoid Direct Instantiation of HttpClient**
    * Use IHttpClientFactory to manage HttpClient instances and avoid socket exhaustion.
 
-5. ## Testing Guidelines
+## 5. Testing Guidelines
 
 5.1. **Test Naming Convention**
    * Name test methods using the format `MethodName_StateUnderTest_ExpectedBehavior` for clarity.
