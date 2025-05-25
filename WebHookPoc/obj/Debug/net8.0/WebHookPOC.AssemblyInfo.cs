@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("WebHookPOC")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fa7b6f732e220ec56a9849254a89444fdac7dc39")]
 [assembly: System.Reflection.AssemblyProductAttribute("WebHookPOC")]
 [assembly: System.Reflection.AssemblyTitleAttribute("WebHookPOC")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
