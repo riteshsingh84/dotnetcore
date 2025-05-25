@@ -17,10 +17,10 @@
 *  Use the prefix "I" for interfaces.
 
 1.3. **Avoid Magic Numbers**
-   > Replace magic numbers with named constants or enums to improve code readability and maintainability.
+* Replace magic numbers with named constants or enums to improve code readability and maintainability.
 
 1.4. **Use Expression-Bodied Members Where Appropriate**
-   > Use expression-bodied members for simple properties and methods to reduce boilerplate.
+* Use expression-bodied members for simple properties and methods to reduce boilerplate.
 
 2. ## Good Programming Practices**
 * Add Proper Comments in code which describe the business logic.
