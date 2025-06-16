@@ -2,6 +2,10 @@ WebHookPoc/WebHookPoc/bin/
 WebHookPoc/WebHookPoc/obj/
 WebHookPoc/WebHookPOC.Tests/bin/
 WebHookPoc/WebHookPOC.Tests/obj/
+
+SecurePdfHandling/bin/
+SecurePdfHandling/obj/
+
 # Git recommended ignores
 *.user
 *.suo
@@ -57,3 +61,5 @@ coverage/
 # Others
 Thumbs.db
 Desktop.ini
+
+

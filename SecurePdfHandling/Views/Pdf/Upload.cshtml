@@ -1,0 +1,26 @@
+@{
+    ViewData["Title"] = "Upload PDF";
+}
+<h2>Upload PDF</h2>
+<form asp-action="Upload" method="post" enctype="multipart/form-data">
+    <div class="form-group">
+        <label for="file">Select PDF file:</label>
+        <input type="file" name="file" accept="application/pdf" class="form-control" required />
+    </div>
+    <button type="submit" class="btn btn-primary">Upload & Encrypt</button>
+</form>
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-danger">@ViewBag.Error</div>
+}
+@if (ViewBag.Message != null)
+{
+    <div class="alert alert-success">@ViewBag.Message</div>
+    @if (ViewBag.EncryptedFileName != null)
+    {
+        <form method="get" asp-action="DecryptAndDisplay" target="_blank">
+            <input type="hidden" name="fileName" value="@ViewBag.EncryptedFileName" />
+            <button type="submit" class="btn btn-success">Decrypt & View PDF</button>
+        </form>
+    }
+}
