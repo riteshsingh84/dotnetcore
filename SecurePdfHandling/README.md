@@ -21,9 +21,6 @@ This ASP.NET Core MVC application allows users to securely upload, encrypt, and 
 - Uses AES for robust encryption
 - Only PDF files are accepted
 
----
-Replace the default README content as you customize the application.
-
 ## Prompt to create this project with the help of GitHub Copilot (Model:GPT4.1)
 
 Create a C# ASP.NET Core application that can encrypt and decrypt PDF files. The application should have the following features:
