@@ -30,7 +30,7 @@ This repository aggregates self-contained .NET Core projects and utilities that 
 - Useful projects
 
 
-## 📂 Projects (Auto-Generated)
+## 📂 Projects
 
 <!-- PROJECTS_START -->
 ### SecurePdfHandling
