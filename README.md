@@ -17,10 +17,8 @@ A collection of .NET Core utilities and sample projects for learning, automation
 - [Contributing](#-contributing)
 - [License](#-license)
 
-
 ## 🔍 Overview
 This repository aggregates self-contained .NET Core projects and utilities that demonstrate practical techniques API development, console apps, and more. Each project aims to be readable and reusable.
-
 
 ## ✨ Features
 - Modular and reusable projects
@@ -28,7 +26,6 @@ This repository aggregates self-contained .NET Core projects and utilities that 
 - Consistent coding style
 - Ready for automation and CI/CD
 - Useful projects
-
 
 ## 📂 Projects
 
@@ -52,6 +49,7 @@ This project is an ASP.NET Core Web API Proof of Concept for secure webhook hand
 <!-- PROJECTS_END -->
 
 ## ⚙️ Installation
+
 Clone the repository:
 ```bash
 git clone https://github.com/riteshsingh84/dotnetcore.git
@@ -71,7 +69,6 @@ Build the solution:
 dotnet build
 ```
 
-
 ## 🤝 Contributing
 Contributions are welcome!
 1. Fork the repository
@@ -79,7 +76,6 @@ Contributions are welcome!
 3. Submit a pull request
 
 Please follow best practices and include documentation.
-
 
 ## 📜 License
 This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
