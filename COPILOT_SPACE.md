@@ -78,13 +78,13 @@ Tip: Add a small README or header at repo creation listing the chosen values.
 
 ## 4) Architecture & conventions (clarified)
 
-Clean Architecture layers
+**Clean Architecture layers**
 - Core (Domain entities, value objects, domain exceptions, interfaces)
 - Application (Use cases, DTOs, validators, application services)
 - Infrastructure (EF Core, repositories, external service clients)
 - Api (Controllers, filters, DI wiring, middleware)
 
-General rules (corrected & actionable)
+**General rules (corrected & actionable)**
 - Prefer async/await for I/O-bound work.
 - Enable nullable reference types (`<Nullable>enable</Nullable>`).
 - Apply SOLID, DRY, SRP. No business logic in controllers—controllers orchestrate.
@@ -114,11 +114,11 @@ General rules (corrected & actionable)
   - File name should match the primary class name.
   - Use `I` prefix for interfaces (e.g., `IProductRepository`).
 
-Dependency injection
+**Dependency injection**
 - Use constructor injection.
 - Use IHttpClientFactory for HttpClient instances to avoid socket exhaustion.
 
-Quick coding clarifications (minor but helpful)
+**Quick coding clarifications (minor but helpful)**
 - Nullable guidance: annotate DTOs and domain types explicitly, prefer non-nullable unless field is optional. Use [Required] on DTOs where appropriate and validate server-side.
 - Cancellation: all public async APIs should accept CancellationToken and propagate it.
 - var: use when the type is obvious (e.g. var customer = new CustomerDto(...)).
@@ -127,7 +127,7 @@ Quick coding clarifications (minor but helpful)
 
 ## 5) Security & compliance (practical)
 
-Authentication & tokens
+**Authentication & tokens**
 - Use JWT access tokens with short lifetimes (e.g., 5–15 minutes) and optional refresh tokens.
 - Keep symmetric keys at least 32 bytes. Store keys in Key Vault or other secret store.
 - Include `kid` in tokens when rotating keys. Support multiple active keys for smooth rotation.
@@ -136,7 +136,7 @@ Authentication & tokens
   - Use refresh-token rotation: when a refresh token is used, invalidate it and issue a new refresh token. Track chain and revoke if reuse is detected.
   - Revoke refresh tokens on password change, logout, or suspected compromise.
 
-Key rotation & incident readiness (expanded)
+**Key rotation & incident readiness (expanded)**
 - Use key identifiers (kid) in JWT headers and support multiple keys so new tokens can be signed with a rotated key and old tokens validated with previous keys during overlap.
 - Rotation schedule: define a cadence (e.g., 90 days) and a process:
   1. Create new key and add to secret store.
@@ -146,30 +146,30 @@ Key rotation & incident readiness (expanded)
 - Document rollback steps to revoke refresh tokens and rotate secrets quickly if compromise is suspected.
 - Include an emergency "revoke-all" capability to invalidate all refresh tokens (e.g., bump a server-side token version or global revocation timestamp).
 
-Secrets & local dev
+**Secrets & local dev**
 - Never commit secrets. Use:
   - Production: Azure Key Vault / HashiCorp Vault / AWS Secrets Manager.
   - CI: GitHub Actions Secrets / Azure DevOps secure variables.
   - Local: dotnet user-secrets or environment variables for developers.
 - Provide a short developer-only README explaining how to set user-secrets to run locally.
 
-Authorization
+**Authorization**
 - Deny-by-default. Explicitly allow via roles or policies.
 - Prefer fine-grained policies (policy names, claim-based checks) over large role buckets.
 
-Transport & headers
+**Transport & headers**
 - HTTPS only in production; enable HSTS.
 - Add security headers (CSP, X-Content-Type-Options, X-Frame-Options) via middleware or reverse proxy.
 
-Rate limiting & abuse protection
+**Rate limiting & abuse protection**
 - Add rate-limiting middleware (ASP.NET Core built-in or reverse-proxy rules) for sensitive endpoints.
 - Consider IP and user-level throttles and burst limits.
 
-Logging & PII
+**Logging & PII**
 - Do not log PII. Mask or redact values before logging.
 - Use correlation IDs to trace requests across services. Add them to logs and response headers.
 
-Dependency & code security
+**Dependency & code security**
 - Enable dependency scanning (Dependabot, Snyk) and SAST in CI.
 - Sanitize all inputs and validate server-side; avoid trusting client-supplied data.
 
@@ -218,7 +218,7 @@ docker-compose.yml
 Directory.Build.props
 ```
 
-Additional repo files to add (recommended)
+**Additional repo files to add (recommended)**
 - .github/CODEOWNERS — ensure critical reviewers are always requested for PRs
 - .github/dependabot.yml — enable dependency update PRs
 - .github/PULL_REQUEST_TEMPLATE.md and ISSUE templates — include DoD checklist (see Contributing)
@@ -231,13 +231,13 @@ Add CODEOWNERS, CONTRIBUTING.md, and SECURITY.md to standardize contribution and
 
 ## 7) Environment & configuration (examples)
 
-Minimum local setup
+**Minimum local setup**
 - .NET SDK 10.x
 - Docker Desktop (or engine)
 - docker-compose to run DBs for integration tests
 - dotnet user-secrets for local secrets
 
-Config keys (recommended)
+**Config keys (recommended)**
 - ConnectionStrings__Default
 - Jwt__Issuer
 - Jwt__Audience
@@ -246,14 +246,14 @@ Config keys (recommended)
 - Serilog__WriteTo
 - Feature flags and environment indicators
 
-Example local user-secrets commands
+**Example local user-secrets commands**
 ```
 dotnet user-secrets init
 dotnet user-secrets set "ConnectionStrings:Default" "Host=localhost;Database=apidb;Username=apiuser;Password=apipass"
 dotnet user-secrets set "Jwt:Key" "some-dev-only-key-of-32chars+"
 ```
 
-.env.example (add to repo)
+**.env.example (add to repo)**
 ```env
 # Example environment variables for local development
 # Do NOT commit secrets to the repo; use dotnet user-secrets for dev values
@@ -266,17 +266,17 @@ Serilog__MinimumLevel=Information
 ASPNETCORE_ENVIRONMENT=Development
 ```
 
-Sample Dockerfile recommendation (multistage)
+**Sample Dockerfile recommendation (multistage)**
 - Keep an example Dockerfile in repo root, use a slim runtime image, and keep secrets out of the image.
 
 ---
 
 ## 8) CI/CD (sample & guidance)
 
-CI pipeline goals
+**CI pipeline goals**
 - build → restore → test → static analysis → security scan → publish artifact
 
-Sample GitHub Actions CI (expanded & security-hardening)
+**Sample GitHub Actions CI (expanded & security-hardening)**
 - Add CodeQL SAST analysis, Dependabot, secret-scanning, dotnet format, analyzers, and container vulnerability scan (Trivy).
 - Example jobs to include:
   - dotnet/format (fail if formatting issues)
@@ -325,22 +325,22 @@ jobs:
       languages: csharp
 ```
 
-CI matrix examples
+**CI matrix examples**
 - If your app supports multiple DB providers or target frameworks, add a job matrix:
   - db: [postgres, sqlserver]
   - tfm: [net10]
 - Ensure integration tests run in containers matching the matrix entries.
 
-Branch protection & CD
+**Branch protection & CD**
 - Require passing CI, required approvers, and security checks before merge to protected branches (`main`, `develop`).
 - CD: build images in pipeline, scan them, and push to registry only after gating checks pass.
 
-Quality gates
+**Quality gates**
 - All tests must pass.
 - Enforce analyzers; fix high-severity findings before merge.
 - Optional: enforce minimum code coverage threshold (example: 70% for unit tests, tuned per project).
 
-Dependabot configuration (recommendation)
+**Dependabot configuration (recommendation)**
 - Use `.github/dependabot.yml` to keep dependencies up-to-date and to raise PRs for important updates automatically.
 
 ---
@@ -516,7 +516,7 @@ using (var scope = app.Services.CreateScope())
 app.Run();
 ```
 
-CI snippets (short)
+C**I snippets (short)**
 - Example: add `dotnet format --verify-no-changes` and CodeQL and Trivy jobs as shown in CI guidance.
 
 ---
@@ -553,27 +553,27 @@ Concrete recommendations
 
 Add short runbooks for common operational tasks and incidents. Keep them in /docs/runbooks.
 
-1) Database migration (production)
+**1) Database migration (production)**
 - Prepare migration in feature branch; create migration scripts and review.
 - Apply migration in staging first and validate.
 - Use transactional migrations where supported or run in a maintenance window.
 - Rollback plan: have the previous backup available; prefer additive migrations. If destructive changes required, run in two-step: deploy code that supports old+new schema, migrate data, then cut over, then remove compatibility code.
 
-2) Rollback strategy
+**2) Rollback strategy**
 - If a release fails:
   - Halt traffic to new release (scale down).
   - Redeploy previous image/tag.
   - Investigate and communicate status.
 - Keep short-lived feature toggles to disable problematic features without a full rollback.
 
-3) Incident response (example)
+**3) Incident response (example)**
 - Triage & severity classification.
 - Preserve logs & traces (snapshot).
 - Rotate affected secrets if suspected compromise.
 - If data exposed: follow legal/compliance steps and communication plan (contact PO/Legal).
 - Post-incident: run root cause analysis, share summary, and update runbooks.
 
-4) Key compromise procedure
+**4) Key compromise procedure**
 - Rotate keys immediately, invalidate refresh tokens, force re-authentication if necessary, publish status and timeline.
 
 Include quick commands and expected outputs in runbooks (e.g., `dotnet ef database update` sample with necessary env var hints).
@@ -582,21 +582,21 @@ Include quick commands and expected outputs in runbooks (e.g., `dotnet ef databa
 
 ## 17) API lifecycle & governance
 
-Versioning & deprecation policy
+**Versioning & deprecation policy**
 - Version APIs explicitly (path or header). Example: `/api/v1/...`.
 - Deprecation process:
   1. Announce deprecation in API docs and release notes with deprecation date and recommended alternative.
   2. Keep old version available for a defined overlap (e.g., 90 days) unless critical security issues require earlier removal.
   3. Provide automated telemetry to track usage of deprecated endpoints and notify affected consumers if possible.
 
-Semantic versioning & release notes
+**Semantic versioning & release notes**
 - Adopt SemVer for published artifacts (images, NuGet packages).
 - Maintain a changelog (keep a CHANGELOG.md or rely on release notes in GitHub Releases).
 
-Public API changes & review
+**Public API changes & review**
 - Require design review for breaking changes: document the change, migration steps, and compatibility tests.
 
-Governance
+**Governance**
 - Decide and document support windows (how long each major API version is supported).
 - Require API contract reviews when changing DTOs (breaking vs non-breaking).
 
@@ -604,26 +604,26 @@ Governance
 
 ## 18) Testing policy & targets
 
-Test types & responsibilities
+**Test types & responsibilities**
 - Unit tests: logic in Application layer. Fast and deterministic. Use Moq and FluentAssertions.
 - Integration tests: WebApplicationFactory or containerized DB that exercise the full stack. Use known seed data and cleanup.
 - End-to-end tests: optional, run in an environment that mirrors production.
 
-Coverage targets & gates
+**Coverage targets & gates**
 - Set a sensible baseline coverage target (example: 70% overall); enforce only if the repository/team agrees. Prefer quality over raw percentage.
 - Use coverage to identify risky untested areas and require tests for new logic paths.
 
-Test matrix & examples
+**Test matrix & examples**
 - Use CI matrix to run integration tests against supported DB providers (e.g., Postgres/SQL Server) to catch provider-specific behavior.
 - Example matrix:
   - include OS variants (ubuntu-latest, windows-latest) only if OS-specific behavior expected.
   - include DB provider (postgres, sqlserver).
 
-Test data & determinism
+**Test data & determinism**
 - Use factory methods or fixtures for creating test data.
 - Prefer in-memory or containerized DBs; ensure deterministic ordering and isolation (database per test class or test run).
 
-Testing practices
+**Testing practices**
 - Test naming: MethodName_StateUnderTest_ExpectedBehavior.
 - Aim for one logical assertion per test when practical; grouping assertions in integration tests is acceptable when it reduces duplication and keeps intent clear.
 - Mock external dependencies (HTTP, queues) in unit tests; use real endpoints in integration tests where needed.
