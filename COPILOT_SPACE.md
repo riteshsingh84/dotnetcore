@@ -7,7 +7,7 @@
 
 ## 1) Goals
 
-- Build a secure, testable, maintainable **ASP.NET Core Web API** (target: .NET 8).
+- Build a secure, testable, maintainable **ASP.NET Core Web API** (target: .NET 10).
 - Enforce **Clean Architecture** and **RESTful** conventions.
 - Use **EF Core** for data access, **JWT** for authentication, **Swagger** for API docs.
 - Ship with CI/CD, health checks, logging, validation, and versioning.
@@ -64,6 +64,23 @@
 - Use **DTOs** for API boundaries (no direct entity exposure).
 - Return standard HTTP codes; use problem details for errors.
 - Version APIs (`/api/v1/...`); don’t break contracts.
+- Add Proper Comments in code which describe the business logic.
+- Declare all member variables at the top of a class.
+- Avoid writing very long methods. A method should typically have 1~25 lines of code. If a method has more than 25 lines of code, you must consider re factoring into separate methods.
+- Avoid passing too many parameters to a method. If you have more than 4~5 parameters, it is a good candidate to define a class or structure.
+- Use short Don’t Use System.Int16.
+- Use int Don’t Use System.Int32.
+- Use long Don’t Use System.Int64.
+- Use string Don’t Use System. String.
+- DO use throw to rethrow an exception; rather than throw *exception object* inside a catch block.
+- Avoid direct casts. Instead, use the “as” operator and check for null. 
+- "new Guid()" should not be used
+- Do not make the member variables public or protected. Keep them private and expose public/protected Properties.
+Avoid using `var` unless the type is obvious from the right-hand side. Prefer explicit types for readability.
+
+**Use Dependency Injection**
+- Prefer constructor injection for dependencies to improve testability and reduce coupling.
+- Use IHttpClientFactory to manage HttpClient instances and avoid socket exhaustion.
 
 **Naming**
 - Controllers: `*Controller`
@@ -72,6 +89,16 @@
 - DTOs: `*Dto`
 - Tests: mirror namespaces with `*.Tests`
 
+**Consistent Naming Conventions**
+- Use PascalCase for class names and method names, camelCase for local variables and parameters, and prefix private fields with an underscore.
+-  Do not use Hungarian notation to name variables. 
+-  Use Meaningful, descriptive words to name variables.
+- Do not use single character variable names like i, n, s etc. Use names like index, temp.
+-  Do not use underscores (_) for local variable names. 
+-  Do not use variable names that resemble keywords.
+-  Namespace names should follow the standard pattern like: <company name>.<product name>.<top level module>.<bottom level module>
+-  File name should match with class name.
+-  Use the prefix "I" for interfaces.
 ---
 
 ## 5) Security & Compliance
@@ -83,6 +110,7 @@
 - HTTPS only; HSTS in production.
 - Rate limiting/throttling for sensitive endpoints.
 - Log **without** PII; use correlation IDs for traceability.
+- Never hardcode API keys, passwords, or connection strings. Use environment variables or secure vaults.
 
 ---
 
@@ -184,7 +212,7 @@ Directory.Build.props
 
 **Generate solution skeleton**
 ```
-Create a .NET 8 Clean Architecture Web API solution with projects: Core, Application, Infrastructure, Api. 
+Create a .NET 10 Clean Architecture Web API solution with projects: Core, Application, Infrastructure, Api. 
 Wire DI in Api for Application and Infrastructure. Enable nullable reference types. Add Directory.Build.props to enforce analyzers and C# language version.
 ```
 
@@ -253,6 +281,7 @@ Annotate controllers and expose version in Swagger docs.
 Add FluentValidation validators for ProductCreateDto, ProductUpdateDto (Name required, Price > 0, Stock >= 0). 
 Register validators and AutoMapper profiles. 
 Ensure validation errors return 400 with a consistent schema.
+Ensure all user input is validated and sanitized to prevent injection attacks.
 ```
 
 ### F) Logging & Observability
@@ -271,6 +300,11 @@ Expose `/ready` for readiness, including EF Core database connectivity.
 ```
 
 ### G) Testing
+
+**Testing Guidelines**
+- Name test methods using the format `MethodName_StateUnderTest_ExpectedBehavior` for clarity.
+- Each unit test should ideally contain a single assertion to isolate failures and improve test clarity.
+- Use mocking frameworks to isolate the unit under test from external dependencies like databases or APIs.
 
 **Unit tests**
 ```
@@ -304,7 +338,7 @@ Use a test database (SQLite in-memory or containerized Postgres) and EF Core mig
 ```
 I’m setting up the API locally. 
 Generate steps to:
-1) Install .NET 8 SDK
+1) Install .NET 10 SDK
 2) Run `docker-compose up -d` to start the DB
 3) Apply EF migrations
 4) Configure user-secrets for JWT and connection string
