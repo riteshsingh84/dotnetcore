@@ -1,7 +1,26 @@
-
 # Copilot Space — ASP.NET Core Web API
 
-> Purpose-built workspace to guide Copilot (and teammates) in generating, discussing, and improving an ASP.NET Core API using best practices, clean architecture, and production-ready conventions.
+> Purpose-built workspace to guide Copilot (and teammates) in generating, discussing, and improving an ASP.NET Core API using best practices, Clean Architecture, and production-ready conventions.
+
+---
+
+Table of Contents
+1. Goals
+2. Project context & template variables
+3. Tech stack & baseline
+4. Architecture & conventions (clarified)
+5. Security & compliance (practical guidance)
+6. Project structure (recommended)
+7. Environment & configuration (examples)
+8. CI/CD (sample & guidance)
+9. Definition of Done
+10. Knowledge links
+11. Prompt Pack (ready to paste)
+12. Review Rubric
+13. Onboarding script
+14. Starter configuration snippets
+15. Space constraints for Copilot
+16. Maintainers
 
 ---
 
@@ -10,111 +29,133 @@
 - Build a secure, testable, maintainable **ASP.NET Core Web API** (target: .NET 10).
 - Enforce **Clean Architecture** and **RESTful** conventions.
 - Use **EF Core** for data access, **JWT** for authentication, **Swagger** for API docs.
-- Ship with CI/CD, health checks, logging, validation, and versioning.
+- Ship with CI/CD, health checks, structured logging, validation, versioning, and tests.
 - Provide reusable **prompt packs** for common tasks (controllers, services, auth, DB, tests).
 
-**Non-Goals**
+Non-Goals
 - Front-end UI.
-- Legacy .NET (Framework) support.
+- Legacy .NET Framework support.
 - Non-HTTP protocols.
 
 ---
 
-## 2) Project Context
+## 2) Project context & template variables
 
-- **Project name**: `{{ProjectName}}`
-- **Business domain**: `{{Domain}}`
-- **Repository**: `{{Repo URL}}`
-- **Branch strategy**: `main` (release), `develop` (integration), feature branches `feature/*`
-- **Issue tracking**: `{{Azure DevOps|GitHub Issues|Jira}}`
-- **Environment targets**: `Local`, `Dev`, `Staging`, `Prod`
-- **Cloud/Infra**: `{{Azure|AWS|On-prem}}`
-- **Database**: `{{SQL Server|PostgreSQL}}`
-- **Secrets management**: `{{Azure Key Vault|GitHub Actions Secrets}}`
+Use these placeholders when creating a new project. Replace with concrete values early in the project lifecycle.
+
+- ProjectName: e.g., "Acme.Catalog"
+- Domain: e.g., "Catalog"
+- Repo URL: e.g., "https://github.com/acme/catalog-api"
+- Branch strategy: main (release), develop (integration), feature/* (work)
+- Issue tracking: Azure DevOps | GitHub Issues | Jira
+- Environment targets: Local, Dev, Staging, Prod
+- Cloud/Infra: Azure | AWS | On-prem
+- Database: SQL Server | PostgreSQL
+- Secrets management: Azure Key Vault | HashiCorp Vault | GitHub Actions Secrets
+
+Tip: Add a small README or header at repo creation listing the chosen values.
 
 ---
 
 ## 3) Tech Stack & Baseline
 
-- **Runtime**: .NET 10 (ASP.NET Core Web API)
-- **Data**: Entity Framework Core (Code First, Migrations)
-- **Auth**: JWT Bearer, role-based authorization
-- **Docs**: Swagger/OpenAPI (Swashbuckle), XML comments
-- **Validation**: FluentValidation or DataAnnotations
-- **Logging**: ILogger + Serilog (structured logs)
-- **Mapping**: AutoMapper
-- **Testing**: xUnit + FluentAssertions + Moq
-- **Packaging**: Docker (multistage) + Docker Compose
-- **Observability**: Health Checks, request logging, correlation IDs
+- Runtime: .NET 10 (ASP.NET Core Web API)
+- Data: Entity Framework Core (Code First, Migrations)
+- Auth: JWT Bearer, optional refresh tokens, role- and policy-based authorization
+- Docs: Swagger/OpenAPI (Swashbuckle), XML comments
+- Validation: FluentValidation (preferred) or DataAnnotations
+- Logging: ILogger + Serilog (structured logs)
+- Mapping: AutoMapper
+- Testing: xUnit + FluentAssertions + Moq
+- Packaging: Docker (multistage) + docker-compose for local
+- Observability: Health checks, request logging, correlation IDs, OpenTelemetry
 
 ---
 
-## 4) Architecture & Conventions
+## 4) Architecture & conventions (clarified)
 
-**Clean Architecture layers**
-- `Core` (Domain entities, interfaces, value objects)
-- `Application` (Use cases, DTOs, validators, services)
-- `Infrastructure` (EF Core, repositories, external services)
-- `API` (Controllers, filters, DI wiring, middleware)
+Clean Architecture layers
+- Core (Domain entities, value objects, domain exceptions, interfaces)
+- Application (Use cases, DTOs, validators, application services)
+- Infrastructure (EF Core, repositories, external service clients)
+- Api (Controllers, filters, DI wiring, middleware)
 
-**General rules**
-- Prefer **async/await** for I/O.
-- Nullability enabled (`<Nullable>enable</Nullable>`).
-- SOLID, DRY, SRP. No business logic in controllers.
-- Use **DTOs** for API boundaries (no direct entity exposure).
-- Return standard HTTP codes; use problem details for errors.
-- Version APIs (`/api/v1/...`); don’t break contracts.
-- Add Proper Comments in code which describe the business logic.
-- Declare all member variables at the top of a class.
-- Avoid writing very long methods. A method should typically have 1~25 lines of code. If a method has more than 25 lines of code, you must consider re factoring into separate methods.
-- Avoid passing too many parameters to a method. If you have more than 4~5 parameters, it is a good candidate to define a class or structure.
-- Use short Don’t Use System.Int16.
-- Use int Don’t Use System.Int32.
-- Use long Don’t Use System.Int64.
-- Use string Don’t Use System. String.
-- DO use throw to rethrow an exception; rather than throw *exception object* inside a catch block.
-- Avoid direct casts. Instead, use the “as” operator and check for null. 
-- "new Guid()" should not be used
-- Do not make the member variables public or protected. Keep them private and expose public/protected Properties.
-Avoid using `var` unless the type is obvious from the right-hand side. Prefer explicit types for readability.
+General rules (corrected & actionable)
+- Prefer async/await for I/O-bound work.
+- Enable nullable reference types (`<Nullable>enable</Nullable>`).
+- Apply SOLID, DRY, SRP. No business logic in controllers—controllers orchestrate.
+- Use DTOs for API boundaries; do not return EF entities directly.
+- Return standard HTTP codes; use RFC 7807 ProblemDetails for errors.
+- Version APIs (e.g., `/api/v1/...`) and avoid breaking changes; use versioning strategy.
+- Keep methods short and focused. If a method exceeds ~25 lines, consider refactoring.
+- If a method has more than ~4–5 parameters, consider extracting a parameter object.
+- Prefer explicit typing for readability, but allow `var` when the right-hand type is obvious.
+- Prefer C# built-in aliases (int, long, string, bool) over System.Int32/System.Int64/System.String for readability. Example: use `int` not `System.Int32`.
+- GUIDs:
+  - Avoid `new Guid()` — it produces Guid.Empty.
+  - Use `Guid.NewGuid()` to create a new random GUID unless you intentionally need Guid.Empty.
+- Exception rethrow:
+  - Use `throw;` to rethrow preserving the stack trace, not `throw ex;`.
+- Avoid direct casts when nullability is uncertain — prefer `as` and null-check or pattern matching.
+- Keep fields private and expose properties when needed; prefer readonly where possible.
+- Naming:
+  - Controllers: `*Controller`
+  - Services: `*Service`
+  - Repositories: `*Repository`
+  - DTOs: `*Dto`
+  - Tests: mirror namespaces and append `.Tests`
+- Style:
+  - PascalCase for types and methods, camelCase for parameters and locals.
+  - Prefix private fields with an underscore (`_`).
+  - File name should match the primary class name.
+  - Use `I` prefix for interfaces (e.g., `IProductRepository`).
 
-**Use Dependency Injection**
-- Prefer constructor injection for dependencies to improve testability and reduce coupling.
-- Use IHttpClientFactory to manage HttpClient instances and avoid socket exhaustion.
-
-**Naming**
-- Controllers: `*Controller`
-- Services: `*Service`
-- Repos: `*Repository`
-- DTOs: `*Dto`
-- Tests: mirror namespaces with `*.Tests`
-
-**Consistent Naming Conventions**
-- Use PascalCase for class names and method names, camelCase for local variables and parameters, and prefix private fields with an underscore.
--  Do not use Hungarian notation to name variables. 
--  Use Meaningful, descriptive words to name variables.
-- Do not use single character variable names like i, n, s etc. Use names like index, temp.
--  Do not use underscores (_) for local variable names. 
--  Do not use variable names that resemble keywords.
--  Namespace names should follow the standard pattern like: <company name>.<product name>.<top level module>.<bottom level module>
--  File name should match with class name.
--  Use the prefix "I" for interfaces.
----
-
-## 5) Security & Compliance
-
-- JWT authentication; short-lived access tokens, optional refresh tokens.
-- Authorization via policies/roles; deny by default.
-- Validate inputs (FluentValidation); sanitize outputs.
-- No secrets in source; use environment variables or secret stores.
-- HTTPS only; HSTS in production.
-- Rate limiting/throttling for sensitive endpoints.
-- Log **without** PII; use correlation IDs for traceability.
-- Never hardcode API keys, passwords, or connection strings. Use environment variables or secure vaults.
+Dependency injection
+- Use constructor injection.
+- Use IHttpClientFactory for HttpClient instances to avoid socket exhaustion.
 
 ---
 
-## 6) Project Structure (recommended)
+## 5) Security & compliance (practical)
+
+Authentication & tokens
+- Use JWT access tokens with short lifetimes (e.g., 5–15 minutes) and optional refresh tokens.
+- Keep symmetric keys at least 32 bytes. Store keys in Key Vault or other secret store.
+- Include `kid` in tokens when rotating keys. Support multiple active keys for smooth rotation.
+
+Secrets & local dev
+- Never commit secrets. Use:
+  - Production: Azure Key Vault / HashiCorp Vault / AWS Secrets Manager.
+  - CI: GitHub Actions Secrets / Azure DevOps secure variables.
+  - Local: dotnet user-secrets or environment variables for developers.
+- Provide a short developer-only README explaining how to set user-secrets to run locally.
+
+Authorization
+- Deny-by-default. Explicitly allow via roles or policies.
+- Prefer fine-grained policies (policy names, claim-based checks) over large role buckets.
+
+Transport & headers
+- HTTPS only in production; enable HSTS.
+- Add security headers (CSP, X-Content-Type-Options, X-Frame-Options) via middleware or reverse proxy.
+
+Rate limiting & abuse protection
+- Add rate-limiting middleware (ASP.NET Core built-in or reverse-proxy rules) for sensitive endpoints.
+- Consider IP and user-level throttles and burst limits.
+
+Logging & PII
+- Do not log PII. Mask or redact values before logging.
+- Use correlation IDs to trace requests across services. Add them to logs and response headers.
+
+Dependency & code security
+- Enable dependency scanning (Dependabot, Snyk) and SAST in CI.
+- Sanitize all inputs and validate server-side; avoid trusting client-supplied data.
+
+Key rotation & incident readiness
+- Document key rotation procedure and how to invalidate refresh tokens in an incident.
+
+---
+
+## 6) Project structure (recommended)
 
 ```
 /src
@@ -133,9 +174,11 @@ Avoid using `var` unless the type is obvious from the right-hand side. Prefer ex
     /Entities
     /ValueObjects
     /Events
+    /Exceptions
   /Infrastructure
     /Persistence
     /Repositories
+    /ExternalClients
     /Migrations
 
 /tests
@@ -152,206 +195,167 @@ Avoid using `var` unless the type is obvious from the right-hand side. Prefer ex
 
 Dockerfile
 docker-compose.yml
-global.json
 Directory.Build.props
+```
+
+Add CODEOWNERS, CONTRIBUTING.md, and SECURITY.md to standardize contribution and vulnerability handling.
+
+---
+
+## 7) Environment & configuration (examples)
+
+Minimum local setup
+- .NET SDK 10.x
+- Docker Desktop (or engine)
+- docker-compose to run DBs for integration tests
+- dotnet user-secrets for local secrets
+
+Config keys (recommended)
+- ConnectionStrings__Default
+- Jwt__Issuer
+- Jwt__Audience
+- Jwt__Key (or better: KeyVaultReference)
+- Serilog__MinimumLevel
+- Serilog__WriteTo
+
+Example local user-secrets commands
+```
+dotnet user-secrets init
+dotnet user-secrets set "ConnectionStrings:Default" "Host=localhost;Database=apidb;Username=apiuser;Password=apipass"
+dotnet user-secrets set "Jwt:Key" "some-dev-only-key-of-32chars+"
 ```
 
 ---
 
-## 7) Environment & Configuration
+## 8) CI/CD (sample & guidance)
 
-**Minimum local setup**
-- .NET SDK: 10.x
-- Docker Desktop (or engine)
-- SQL container via Compose (or local DB)
-- User secrets for dev (`dotnet user-secrets`)
+CI pipeline goals
+- build → restore → test → static analysis → security scan → publish artifact
 
-**Config keys (examples)**
-- `ConnectionStrings__Default`
-- `Jwt__Issuer`, `Jwt__Audience`, `Jwt__Key`
-- `Serilog__MinimumLevel`, `Serilog__WriteTo`
+Sample GitHub Actions CI (minimal)
+```yaml
+name: CI
 
----
+on: [push, pull_request]
 
-## 8) CI/CD (example)
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.x
+      - name: Restore & Build
+        run: dotnet build --configuration Release --no-restore
+      - name: Test
+        run: dotnet test --no-build --verbosity normal
+      - name: Run analyzers
+        run: dotnet build -p:RunAnalyzers=true
+```
 
-- **CI**: build → test → lint → security scan → publish artifacts
-- **CD**: containerize → push image → deploy to `{{Azure Web App|AKS}}`
+CD guidance
+- Containerize with Docker multistage builds.
+- Push images to a registry (Azure ACR, GitHub Container Registry).
+- Use environment-specific deployment pipelines with secrets pulled from vaults.
+- Require branch protection for `main` and `develop`: at least one reviewer, successful CI, and passing security checks.
 
-**Quality gates**
-- All tests pass; mutation score (if used) above threshold.
-- Code coverage ≥ {{threshold}}%.
-- Static analysis clean (Roslyn analyzers, SonarQube optional).
+Quality gates
+- All tests must pass.
+- Enforce analyzers; fix high-severity findings before merge.
+- Optional: enforce minimum code coverage threshold if appropriate for the project.
 
 ---
 
 ## 9) Definition of Done
 
 - Endpoint documented (Swagger + XML comments).
-- Validated inputs; well-defined responses.
+- Input validation and consistent error responses (ProblemDetails).
 - Unit + integration tests added and passing.
-- Logs, metrics, and health checks in place.
-- Backwards-compatible API changes unless versioned.
-- Security reviewed (authZ, secrets, error messages).
+- Logs and health checks in place.
+- Backwards-compatible changes or properly versioned breaking changes.
+- Security review performed (no secrets, safe error messages).
 
 ---
 
-## 10) Knowledge Links (insert your org refs)
+## 10) Knowledge links
 
 - ASP.NET Core docs: https://learn.microsoft.com/aspnet/core/
 - EF Core docs: https://learn.microsoft.com/ef/core/
 - Swashbuckle: https://github.com/domaindrivendev/Swashbuckle.AspNetCore
 - Serilog: https://serilog.net/
 - FluentValidation: https://docs.fluentvalidation.net/
+- OpenTelemetry .NET: https://opentelemetry.io/docs/instrumentation/net/
 
 ---
 
 ## 11) Prompt Pack (ready to paste in Copilot Chat)
 
-### A) Bootstrap API (minimal or MVC)
-
-**Generate solution skeleton**
+A) Bootstrap API
 ```
-Create a .NET 10 Clean Architecture Web API solution with projects: Core, Application, Infrastructure, Api. 
-Wire DI in Api for Application and Infrastructure. Enable nullable reference types. Add Directory.Build.props to enforce analyzers and C# language version.
+Create a .NET 10 Clean Architecture Web API with projects: Core, Application, Infrastructure, Api.
+Wire DI in Api for Application and Infrastructure, enable nullable reference types, and add Directory.Build.props with analyzers.
 ```
 
-**Enable Swagger + XML comments**
+B) Enable Swagger + XML comments
 ```
-Add Swagger/OpenAPI with XML comments, `IncludeXmlComments`, and describe authentication with JWT bearer in the OpenAPI doc. 
-Add `app.UseSwagger()` and `app.UseSwaggerUI()` gated by environment when needed.
-```
-
-**Global exception handling**
-```
-Add a global exception-handling middleware returning RFC 7807 ProblemDetails. 
-Log exceptions with Serilog, include correlation ID. 
-Map common exceptions (ValidationException => 400, UnauthorizedAccessException => 401, NotFoundException => 404).
+Add Swagger/OpenAPI with XML comments and example JWT security scheme. Add app.UseSwagger and app.UseSwaggerUI gated by environment.
 ```
 
-### B) Data & EF Core
-
-**EF Core setup**
+C) Global exception handling
 ```
-Add DbContext `AppDbContext` with entities Product(Id, Name, Price, Stock) and Category(Id, Name).
-Configure relationships and constraints. 
-Add repositories via interfaces in Application, concrete implementations in Infrastructure. 
-Create initial migration and update database.
+Add a global exception-handling middleware returning ProblemDetails. Map ValidationException => 400, UnauthorizedAccessException => 401, NotFoundException => 404. Enrich logs with correlation ID.
 ```
 
-**Seed data**
+D) EF Core & seeding
 ```
-Add `DataSeeder` that seeds 5 categories and 20 products if database is empty. 
-Run on app startup in `Program.cs` with a scoped service.
-```
-
-### C) Authentication & Authorization (JWT)
-
-**JWT wiring**
-```
-Configure JWT bearer authentication with issuer, audience, and symmetric key from configuration. 
-Add a `POST /api/v1/auth/login` issuing JWT with claims (sub, name, role). 
-Create authorization policies: `CanViewProducts`, `CanManageProducts`. 
-Protect `ProductsController` with roles and policies.
+Add AppDbContext, Product and Category entities, and repositories. Add DataSeeder that seeds data if DB empty and invoke on startup within a scope.
 ```
 
-### D) Controllers & Endpoints
-
-**CRUD controller**
+E) JWT wiring
 ```
-Generate `ProductsController` (v1) with CRUD endpoints:
-GET /api/v1/products (paged, filter by category, name, price range)
-GET /api/v1/products/{id}
-POST /api/v1/products
-PUT /api/v1/products/{id}
-DELETE /api/v1/products/{id}
-Use DTOs and validators; return ProblemDetails on errors; include pagination metadata in headers.
+Configure JWT bearer authentication using configuration values. Add POST /api/v1/auth/login issuing JWT (claims: sub, name, role). Add policies and protect controllers with [Authorize].
 ```
 
-**Versioning**
+F) Controllers & tests
 ```
-Add API versioning (v1, v2) with `AspNetCore.Mvc.Versioning`. 
-Annotate controllers and expose version in Swagger docs.
-```
-
-### E) Validation & Mapping
-
-**FluentValidation + AutoMapper**
-```
-Add FluentValidation validators for ProductCreateDto, ProductUpdateDto (Name required, Price > 0, Stock >= 0). 
-Register validators and AutoMapper profiles. 
-Ensure validation errors return 400 with a consistent schema.
-Ensure all user input is validated and sanitized to prevent injection attacks.
-```
-
-### F) Logging & Observability
-
-**Serilog**
-```
-Add Serilog with console sink and request logging. 
-Enrich logs with correlation ID, user, and request path. 
-Set minimum level `Information` and override `Microsoft` to `Warning`.
-```
-
-**Health checks**
-```
-Add `/health` with DB check and a liveness probe. 
-Expose `/ready` for readiness, including EF Core database connectivity.
-```
-
-### G) Testing
-
-**Testing Guidelines**
-- Name test methods using the format `MethodName_StateUnderTest_ExpectedBehavior` for clarity.
-- Each unit test should ideally contain a single assertion to isolate failures and improve test clarity.
-- Use mocking frameworks to isolate the unit under test from external dependencies like databases or APIs.
-
-**Unit tests**
-```
-Create xUnit tests for ProductService: 
-- GetById returns product
-- Create validates and persists
-Use Moq and FluentAssertions.
-```
-
-**Integration tests**
-```
-Create WebApplicationFactory-based tests for ProductsController endpoints. 
-Use a test database (SQLite in-memory or containerized Postgres) and EF Core migrations.
+Generate ProductsController (v1) with CRUD endpoints, DTOs, and FluentValidation. Create xUnit unit tests for services and WebApplicationFactory integration tests for controllers using a test database container.
 ```
 
 ---
 
-## 12) Review Rubric (use in PRs or Copilot Chat)
+## 12) Review Rubric
 
-- **Architecture**: Business logic in Application layer; controllers thin; DI used correctly.
-- **Security**: AuthN/AuthZ enforced; no secret leaks; safe error messages.
-- **Reliability**: Validation, exception handling, idempotency as needed.
-- **Quality**: Tests present and meaningful; coverage acceptable; code analyzers clean.
-- **Performance**: Async I/O; efficient queries; pagination for lists.
-- **Docs**: Swagger complete; XML comments on public endpoints; README updated.
+- Architecture: business logic in Application layer; controllers thin; DI correct.
+- Security: AuthN/AuthZ enforced; no secret leaks; safe error messages.
+- Reliability: validation, exception handling, idempotency when required.
+- Quality: meaningful tests; analyzers clean; docs updated.
+- Performance: async I/O; efficient queries; pagination for lists.
+- Docs: Swagger complete; XML comments on public endpoints; README updated.
+
+Include a small PR checklist in your PR template referencing this rubric.
 
 ---
 
-## 13) Onboarding Script (paste into Copilot)
+## 13) Onboarding Script (copiable)
 
 ```
-I’m setting up the API locally. 
-Generate steps to:
 1) Install .NET 10 SDK
-2) Run `docker-compose up -d` to start the DB
-3) Apply EF migrations
-4) Configure user-secrets for JWT and connection string
-5) Launch the API with Swagger enabled
-6) Run unit and integration tests
-Return commands and expected outputs.
+2) Run docker-compose up -d (starts DB)
+3) Configure user-secrets for JWT and connection string (see .env.example)
+4) Apply EF migrations: dotnet ef database update --context AppDbContext --project src/Infrastructure
+5) Run the API: dotnet run --project src/Api
+6) Run tests: dotnet test
 ```
+
+Provide a `.env.example` and a short "Run locally" README with exact commands for first-time contributors.
 
 ---
 
-## 14) Optional: Starter Configuration Snippets
+## 14) Starter configuration snippets
 
-**Directory.Build.props**
+Directory.Build.props
 ```xml
 <Project>
   <PropertyGroup>
@@ -363,7 +367,7 @@ Return commands and expected outputs.
 </Project>
 ```
 
-**docker-compose.yml (example)**
+docker-compose.yml (Postgres example)
 ```yaml
 version: "3.9"
 services:
@@ -382,22 +386,55 @@ services:
       retries: 5
 ```
 
+Small Program.cs wiring (conceptual)
+```csharp
+var builder = WebApplication.CreateBuilder(args);
+
+// Configuration & secrets
+builder.Configuration.AddEnvironmentVariables();
+
+// Serilog, OpenTelemetry, etc. here...
+
+// DI
+builder.Services.AddApplicationServices();
+builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddControllers();
+
+// Auth & Authorization
+builder.Services.AddAuthenticationJwt(builder.Configuration);
+builder.Services.AddAuthorization(options => { /* policies */ });
+
+// EF Migrations & seeding run at startup (scoped)
+var app = builder.Build();
+app.UseMiddleware<CorrelationIdMiddleware>();
+app.UseExceptionHandler("/error");
+app.UseHttpsRedirection();
+app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+    var seeder = scope.ServiceProvider.GetRequiredService<DataSeeder>();
+    await seeder.SeedAsync();
+}
+
+app.Run();
+```
+
 ---
 
-## 15) Space Constraints for Copilot
+## 15) Space constraints for Copilot (reminder)
 
-- **Always** follow Clean Architecture and RESTful conventions.
-- **Avoid** obsolete APIs; prefer minimal, modern ASP.NET Core patterns.
-- **Explain** changes and provide links to relevant docs when generating code.
-- **Include** tests and docs with any new feature prompts.
+- Always follow Clean Architecture and RESTful conventions.
+- Avoid obsolete APIs; prefer modern minimal APIs and patterns only where appropriate.
+- Explain changes and provide links when generating code.
+- Include tests and docs with any new feature prompts.
 
 ---
 
 ## 16) Maintainers
 
-- **Product Owner**: `Ritesh Singh`
-- **Tech Lead**: `Ritesh Singh`
-- **Maintainers**: `Ritesh Singh`
-- **Contact/Channel**: `{{Teams}}`
+- Product Owner: Ritesh Singh
+- Tech Lead: Ritesh Singh
+- Maintainers: Ritesh Singh
+- Contact/Channel: Teams (add channel link)
 
----
